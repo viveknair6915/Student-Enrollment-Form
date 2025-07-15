@@ -140,9 +140,8 @@ async function saveStudent(data) {
         dbName: DB_NAME,
         rel: RELATION_NAME,
         cmd: 'PUT',
-        record: data
+        jsonStr: data
     };
-    // The '/api/iml' endpoint is now passed to our proxy.
     const res = await jpdbRequest('/api/iml', body);
     if (res.status === 200) return true;
     throw new Error(res.message || 'Error saving data');
@@ -154,10 +153,9 @@ async function updateStudent(data) {
         dbName: DB_NAME,
         rel: RELATION_NAME,
         cmd: 'UPDATE',
-        record: data,
+        jsonStr: data,
         key: data.rollNo
     };
-    // The '/api/iml' endpoint is now passed to our proxy.
     const res = await jpdbRequest('/api/iml', body);
     if (res.status === 200) return true;
     throw new Error(res.message || 'Error updating data');
