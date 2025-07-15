@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Enrollment Form - JsonPowerDB Project</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Student Enrollment Form</h1>
+        <form id="studentForm" autocomplete="off">
+            <label for="rollNo">Roll No. <span class="required">*</span></label>
+            <input type="text" id="rollNo" name="rollNo" required autofocus>
+
+            <label for="fullName">Full Name <span class="required">*</span></label>
+            <input type="text" id="fullName" name="fullName" required>
+
+            <label for="class">Class <span class="required">*</span></label>
+            <input type="text" id="class" name="class" required>
+
+            <label for="birthDate">Birth Date <span class="required">*</span></label>
+            <input type="date" id="birthDate" name="birthDate" required>
+
+            <label for="address">Address <span class="required">*</span></label>
+            <textarea id="address" name="address" required></textarea>
+
+            <label for="enrollDate">Enrollment Date <span class="required">*</span></label>
+            <input type="date" id="enrollDate" name="enrollDate" required>
+
+            <div class="button-group">
+                <button type="button" id="saveBtn" disabled>Save</button>
+                <button type="button" id="updateBtn" disabled>Update</button>
+                <button type="button" id="resetBtn" disabled>Reset</button>
+            </div>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
