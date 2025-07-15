@@ -203,6 +203,21 @@ saveBtn.addEventListener('click', async () => {
         showMessage('Please fill all fields.', true);
         return;
     }
+    // Check for duplicate rollNo before saving
+    try {
+        const existing = await getStudentByRollNo(data.rollNo);
+        if (existing) {
+            showMessage('Duplicate Roll No. Use Update to modify existing record.', true);
+            setFormState('existing');
+            return;
+        }
+    } catch (err) {
+        // If error is not found, proceed. If other error, show it.
+        if (!/not found/i.test(err.message)) {
+            showMessage('Error: ' + err.message, true);
+            return;
+        }
+    }
     try {
         await saveStudent(data);
         showMessage('Record saved successfully!');
