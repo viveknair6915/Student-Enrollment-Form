@@ -1,6 +1,6 @@
 // ====== JsonPowerDB Configuration ======
 // Replace these with your JPDB credentials
-const JPDB_API_BASE = "http://api.login2explore.com:5577";
+const JPDB_API_BASE = "https://api.login2explore.com:5577";
 const JPDB_TOKEN = "90934988|-31949251224252504|90959176"; // <-- Replace with your JPDB token
 const DB_NAME = "SCHOOL-DB";
 const RELATION_NAME = "STUDENT-TABLE";
