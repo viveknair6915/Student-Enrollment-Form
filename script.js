@@ -114,22 +114,23 @@ async function getStudentByRollNo(rollNoVal) {
         cmd: 'GET_BY_KEY',
         key: rollNoVal
     };
-    // The '/api/irl' endpoint is now passed to our proxy.
     const res = await jpdbRequest('/api/irl', body);
-    if (res.status === 400) return null; // Not found
-    // The response from the proxy is the direct response from JPDB.
+    if (res.status === 400 || !res.data) return null; // Not found
     if (res.status === 200) {
-        // The actual record is nested inside a stringified 'data' field in the JPDB response.
+        // JPDB returns data as a stringified object, parse it if needed
+        let record = null;
         if (typeof res.data === 'string') {
             try {
-                const parsedData = JSON.parse(res.data);
-                return parsedData.record;
+                const parsed = JSON.parse(res.data);
+                record = parsed.record;
             } catch (e) {
-                console.error("Failed to parse JPDB data string:", e);
-                throw new Error("Received malformed data from server.");
+                console.error('Failed to parse JPDB data string:', e);
+                return null;
             }
+        } else if (typeof res.data === 'object' && res.data.record) {
+            record = res.data.record;
         }
-        return res.data.record;
+        return record;
     }
     throw new Error(res.message || 'Error fetching data');
 }
@@ -172,7 +173,7 @@ rollNo.addEventListener('blur', async () => {
     try {
         const student = await getStudentByRollNo(rollNoVal);
         if (student) {
-            // Existing record
+            // Existing record: fill form, enable Update, disable Save
             fullName.value = student.fullName;
             classField.value = student.class;
             birthDate.value = student.birthDate;
@@ -181,7 +182,12 @@ rollNo.addEventListener('blur', async () => {
             setFormState('existing');
             showMessage('Record found. You can update or reset.');
         } else {
-            // New record
+            // New record: clear form, enable Save, disable Update
+            fullName.value = '';
+            classField.value = '';
+            birthDate.value = '';
+            address.value = '';
+            enrollDate.value = '';
             setFormState('new');
             showMessage('No record found. Enter details and save.');
         }
