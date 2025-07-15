@@ -1,6 +1,5 @@
 // ====== JsonPowerDB Configuration ======
-// Replace these with your JPDB credentials
-const JPDB_API_BASE = "https://corsproxy.io/?https://api.login2explore.com:5577";
+// This section is now simpler as the proxy handles the full URL.
 const JPDB_TOKEN = "90934988|-31949251224252504|90959176"; // <-- Replace with your JPDB token
 const DB_NAME = "SCHOOL-DB";
 const RELATION_NAME = "STUDENT-TABLE";
@@ -81,15 +80,29 @@ function showMessage(msg, isError = false) {
 }
 
 // ====== JPDB API Functions ======
+// This function now sends requests to our own proxy serverless function.
 async function jpdbRequest(endpoint, body) {
-    const res = await fetch(JPDB_API_BASE + endpoint, {
+    // Our proxy endpoint on Vercel is at /api/jpdb-proxy
+    const proxyEndpoint = '/api/jpdb-proxy';
+
+    const res = await fetch(proxyEndpoint, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'JPDB-Token': JPDB_TOKEN
         },
-        body: JSON.stringify(body)
+        // We wrap the original endpoint and body to send to our proxy.
+        body: JSON.stringify({
+            jpdbEndpoint: endpoint, // e.g., '/api/irl' or '/api/iml'
+            jpdbBody: body          // The original request body for JPDB
+        })
     });
+
+    // Check if the proxy itself returned an error.
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: 'Proxy request failed with non-JSON response' }));
+        throw new Error(errorData.message || 'An unknown proxy error occurred');
+    }
+    
     return res.json();
 }
 
@@ -101,9 +114,23 @@ async function getStudentByRollNo(rollNoVal) {
         cmd: 'GET_BY_KEY',
         key: rollNoVal
     };
+    // The '/api/irl' endpoint is now passed to our proxy.
     const res = await jpdbRequest('/api/irl', body);
     if (res.status === 400) return null; // Not found
-    if (res.status === 200) return res.data;
+    // The response from the proxy is the direct response from JPDB.
+    if (res.status === 200) {
+        // The actual record is nested inside a stringified 'data' field in the JPDB response.
+        if (typeof res.data === 'string') {
+            try {
+                const parsedData = JSON.parse(res.data);
+                return parsedData.record;
+            } catch (e) {
+                console.error("Failed to parse JPDB data string:", e);
+                throw new Error("Received malformed data from server.");
+            }
+        }
+        return res.data.record;
+    }
     throw new Error(res.message || 'Error fetching data');
 }
 
@@ -115,6 +142,7 @@ async function saveStudent(data) {
         cmd: 'PUT',
         record: data
     };
+    // The '/api/iml' endpoint is now passed to our proxy.
     const res = await jpdbRequest('/api/iml', body);
     if (res.status === 200) return true;
     throw new Error(res.message || 'Error saving data');
@@ -129,6 +157,7 @@ async function updateStudent(data) {
         record: data,
         key: data.rollNo
     };
+    // The '/api/iml' endpoint is now passed to our proxy.
     const res = await jpdbRequest('/api/iml', body);
     if (res.status === 200) return true;
     throw new Error(res.message || 'Error updating data');

@@ -1,0 +1,11 @@
+{
+  "name": "student-enrollment-jpdb-proxy",
+  "version": "1.0.0",
+  "description": "A proxy for JPDB to solve CORS issues.",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+} 
